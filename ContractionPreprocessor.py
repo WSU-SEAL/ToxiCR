@@ -1,0 +1,94 @@
+# Copyright Software Engineering Analytics Lab (SEAL), Wayne State University, 2022
+# Authors: Jaydeb Sarker <jaydebsarker@wayne.edu> and Amiangshu Bosu <abosu@wayne.edu>
+
+# This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+# version 3 as published by the Free Software Foundation.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+
+import re
+
+contraction_mapping = {"ain't": "is not", "aren't": "are not",
+                       "can't": "cannot", "'cause": "because",
+                       "could've": "could have", "couldn't": "could not",
+                       "didn't": "did not", "doesn't": "does not",
+                       "don't": "do not", "hadn't": "had not", "hasn't": "has not",
+                       "haven't": "have not", "he'd": "he would", "he'll": "he will",
+                       "he's": "he is", "how'd": "how did", "how'd'y": "how do you",
+                       "how'll": "how will", "how's": "how is", "I'd": "I would",
+                       "I'd've": "I would have", "I'll": "I will", "I'll've": "I will have",
+                       "I'm": "I am", "I've": "I have", "i'd": "i would", "i'd've": "i would have",
+                       "i'll": "i will", "i'll've": "i will have", "i'm": "i am",
+                       "i've": "i have", "isn't": "is not", "it'd": "it would",
+                       "it'd've": "it would have", "it'll": "it will", "it'll've": "it will have",
+                       "it's": "it is", "let's": "let us", "ma'am": "madam", "mayn't": "may not",
+                       "might've": "might have", "mightn't": "might not",
+                       "mightn't've": "might not have", "must've": "must have",
+                       "mustn't": "must not", "mustn't've": "must not have",
+                       "needn't": "need not", "needn't've": "need not have",
+                       "o'clock": "of the clock", "oughtn't": "ought not",
+                       "oughtn't've": "ought not have", "shan't": "shall not",
+                       "sha'n't": "shall not", "shan't've": "shall not have",
+                       "she'd": "she would", "she'd've": "she would have",
+                       "she'll": "she will", "she'll've": "she will have",
+                       "she's": "she is", "should've": "should have", "shouldn't": "should not",
+                       "shouldn't've": "should not have", "so've": "so have", "so's": "so as",
+                       "this's": "this is", "that'd": "that would", "that'd've": "that would have",
+                       "that's": "that is", "there'd": "there would",
+                       "there'd've": "there would have", "there's": "there is",
+                       "here's": "here is", "they'd": "they would", "they'd've": "they would have",
+                       "they'll": "they will", "they'll've": "they will have", "they're": "they are",
+                       "they've": "they have", "to've": "to have", "wasn't": "was not", "we'd": "we would",
+                       "we'd've": "we would have", "we'll": "we will", "we'll've": "we will have",
+                       "we're": "we are", "we've": "we have", "weren't": "were not",
+                       "what'll": "what will",
+                       "what'll've": "what will have", "what're": "what are", "what's": "what is",
+                       "what've": "what have", "when's": "when is", "when've": "when have",
+                       "where'd": "where did", "where's": "where is", "where've": "where have",
+                       "who'll": "who will", "who'll've": "who will have", "who's": "who is",
+                       "who've": "who have", "why's": "why is", "why've": "why have",
+                       "will've": "will have", "won't": "will not", "won't've": "will not have",
+                       "would've": "would have", "wouldn't": "would not", "wouldn't've": "would not have",
+                       "y'all": "you all", "y'all'd": "you all would", "y'all'd've": "you all would have",
+                       "y'all're": "you all are", "y'all've": "you all have", "you'd": "you would",
+                       "you'd've": "you would have", "you'll": "you will", "you'll've": "you will have",
+                       "you're": "you are", "you've": "you have", "aint": "is not", "arent": "are not",
+                       "cant": "cannot", "cause": "because",
+                       "couldve": "could have", "couldnt": "could not",
+                       "didnt": "did not", "doesnt": "does not",
+                       "dont": "do not", "hadnt": "had not", "hasnt": "has not",
+                       "havent": "have not", "howdy": "how do you",
+                       "its": "it is", "lets": "let us", "maam": "madam", "maynt": "may not",
+                       "mightve": "might have", "mightnt": "might not",
+                       "mightntve": "might not have", "mustve": "must have",
+                       "mustnt": "must not", "mustntve": "must not have",
+                       "neednt": "need not", "needntve": "need not have",
+                       "oclock": "of the clock", "oughtnt": "ought not",
+                       "shouldve": "should have", "shouldnt": "should not",
+                       "werent": "were not", "yall": "you all", "youre": "you are",
+                       "youve": "you have"}
+
+url_regex = re.compile('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+
+
+def remove_url(text):
+    return url_regex.sub(" ", text)
+
+
+def expand_contraction(text):
+    specials = ["’", "‘", "´", "`", "'"]
+
+    for s in specials:
+        text = text.replace(s, "'")
+        text = ' '.join([contraction_mapping[t] if t in contraction_mapping else t for t in text.split(" ")])
+    return text
+
+
+def rem_special_sym(text):
+#     return re.sub('\W+',' ', text)
+    pattern = re.compile('([^\s\w]|_)+')
+    return pattern.sub(' ', text)
