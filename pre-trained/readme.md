@@ -1,5 +1,2 @@
-Please make sure to download and put these embedding files here:
-
-Fasttext: https://dl.fbaipublicfiles.com/fasttext/vectors-english/crawl-300d-2M.vec.zip
-Word2Vec: https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz
-Glove: http://nlp.stanford.edu/data/wordvecs/glove.840B.300d.zip
+If you want to use pre-traineid models, please make sure to download, extract, and put those files here:
+https://drive.google.com/file/d/1MdzCafiBcD-fa7C8H1Dnh4r4Mpe9b1GB/view?usp=sharing
