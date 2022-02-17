@@ -238,7 +238,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='ToxiCR: A supervised Toxicity Analysis tool for the SE domain')
 
     parser.add_argument('--algo', type=str,
-                        help='Classification algorithm. Choices are: RF| DT| SVM| LR | GBT| CNN| LSTM| GRU|biLSTM|BERT)',
+                        help='Classification algorithm. Choices are: RF| DT| SVM| LR| GBT| CNN| LSTM| GRU| biLSTM| BERT',
                         default="RF")
 
     parser.add_argument('--repeat', type=int, help='Iteration count', default=5)
@@ -251,7 +251,7 @@ if __name__ == '__main__':
     parser.add_argument('--retro', help='Print missclassifications',
                         action='store_true', default=False)  # default False, will not write
     parser.add_argument('--mode', type=str,
-                        help='Execution mode. eval | pretrain | tuning | predict',
+                        help='Execution mode. Choices are: eval | pretrain | tuning',
                         default="eval")
 
     args = parser.parse_args()

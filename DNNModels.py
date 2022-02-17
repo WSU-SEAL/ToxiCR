@@ -33,7 +33,7 @@ import  random
 
 warnings.filterwarnings('ignore')
 
-EMBEDDING_word2vec = './embeddings/GoogleNews-vectors-negative300.txt'
+EMBEDDING_word2vec = './embeddings/word2vec-googlenews-300d.txt'
 EMBEDDING_FastText = './embeddings/crawl-300d-2M.vec'
 EMBEDDING_GloVe = './embeddings/glove.840B.300d.txt'
 
@@ -85,13 +85,7 @@ class DNNModel:
         self.embed_size = embedding_size
         self.embedding_type = embedding
 
-        # tf.config.experimental.list_physical_devices('GPU')
-        # tf.config.experimental.list_physical_devices(device_type=None)
-        # if tf.config.experimental.list_physical_devices('GPU'):
-        #     physical_devices = tf.config.experimental.list_physical_devices('GPU')
-        #     tf.config.experimental.set_memory_growth(physical_devices[0], enable=True)
-        #     tf.config.experimental.set_virtual_device_configuration(physical_devices[0], [
-        #         tf.config.experimental.VirtualDeviceConfiguration(memory_limit=memory_limit)])
+
         session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=4, inter_op_parallelism_threads=4)
         K.set_session(tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf))
 
