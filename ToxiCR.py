@@ -151,17 +151,22 @@ class ToxiCR:
 
     def get_model(self, X_train, Y_train, tuning=False):
         ALGO = self.ALGO
+        plot_file_name = "./architecture/" + ALGO + ".png"
         if (ALGO == "RF") | (ALGO == "GBT") | (ALGO == "SVM") | (ALGO == "DT") | (ALGO == "LR"):
             self.classifier_model = CLEModel(X_train=X_train, Y_train=Y_train, algo=self.ALGO, tuning=tuning)
         elif ALGO == "BERT":
             from TransformerModel import TransformerModel
-            self.classifier_model = TransformerModel(X_train=X_train, Y_train=Y_train)
+            self.classifier_model = TransformerModel(X_train=X_train, Y_train=Y_train, plot_file_name=plot_file_name)
         elif (ALGO == "CNN") | (ALGO == "LSTM") | (ALGO == "GRU") | (ALGO == "biLSTM") :
             import DNNModels
+
             self.classifier_model = DNNModels.DNNModel(X_train=X_train,
                                                        Y_train=Y_train,
-                                                       algo=ALGO,
+                                                       algo=ALGO, plot_file_name=plot_file_name,
                                                        embedding=self.embedding)
+        else:
+            print("Unknown algorithm: "+ALGO)
+            exit(1)
 
         return self.classifier_model
 
@@ -257,7 +262,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     print(args)
-    ALGO = args.algo
+    ALGO = str(args.algo).upper()
     REPEAT = args.repeat
     embedding = args.embed
     mode = args.mode

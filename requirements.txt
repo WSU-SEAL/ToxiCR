@@ -10,3 +10,5 @@ tensorflow-hub>=0.12.0
 nltk>=3.5
 spacy>=2.3
 openpyxl>=3.0.9
+pydot
+graphviz

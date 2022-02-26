@@ -38,7 +38,8 @@ def df_to_dataset(dataframe, batch_size=16):
 
 class TransformerModel:
     def __init__(self, X_train=None, Y_train=None,
-                 bert_model_name="bert_en_uncased_L-12_H-768_A-12", load_from_file=None):
+                 bert_model_name="bert_en_uncased_L-12_H-768_A-12", load_from_file=None,
+                 plot_file_name=None):
         self.tfhub_handle_encoder = BertLocator.getBERTEncoderURL(bert_model_name)
         self.tfhub_handle_preprocess = BertLocator.getPreprocessURL(bert_model_name)
 
@@ -48,6 +49,7 @@ class TransformerModel:
         self.bert_preprocess_model = hub.KerasLayer(self.tfhub_handle_preprocess)
         self.bert_model = hub.KerasLayer(self.tfhub_handle_encoder)
         self.epochs = 20
+        self.plot=plot_file_name
 
         if load_from_file is not None:
             self.steps_per_epoch = 19571  # size of our dataset
@@ -77,6 +79,8 @@ class TransformerModel:
         classifier_model.compile(optimizer=optimizer,
                                  loss=loss,
                                  metrics=metrics)
+        if self.plot is not None:
+            tf.keras.utils.plot_model(classifier_model, to_file=self.plot, show_shapes=True)
         return classifier_model
 
     def get_optimizer(self):

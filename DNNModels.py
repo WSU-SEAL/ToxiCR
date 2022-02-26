@@ -79,11 +79,12 @@ def get_coefs(word, *arr): return word, np.asarray(arr, dtype='float32')
 class DNNModel:
     def __init__(self, X_train=None, Y_train=None, algo="CNN", embedding="fasttext",
                  max_features=5000, maxlen=500,
-                 embedding_size=300, load_from_file=None):
+                 embedding_size=300, load_from_file=None, plot_file_name =None):
         self.max_features = max_features
         self.maxlen = maxlen
         self.embed_size = embedding_size
         self.embedding_type = embedding
+        self.plot=plot_file_name
 
 
         session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=4, inter_op_parallelism_threads=4)
@@ -347,9 +348,8 @@ class DNNModel:
         X_train_vector = self._prepare_df(X_train)
 
         if model is not None:
-            #print("Type is:")
-            #print(type(X_train_vector), type(Y_train))
-
+            if self.plot is not None:
+                tf.keras.utils.plot_model(model, to_file=self.plot, show_shapes=True)
             ##convert Y_train to np.ndaaray
             Y_train = Y_train.values
 
