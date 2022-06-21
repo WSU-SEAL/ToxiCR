@@ -59,6 +59,8 @@ class CLEModel:
         self.mapper = DataFrameMapper([
             ('message', self.vectorizer),
             ('profane_count', None),
+            ('emoticon_count', None),
+            ('anger_count', None),
         ])
         self.Y = np.ravel(Y_train)
 

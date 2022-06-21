@@ -29,8 +29,6 @@ import  random
 # from keras.models import Model
 
 
-
-
 warnings.filterwarnings('ignore')
 
 EMBEDDING_word2vec = './embeddings/word2vec-googlenews-300d.txt'
@@ -40,6 +38,8 @@ EMBEDDING_GloVe = './embeddings/glove.840B.300d.txt'
 EMBEDDING_word2vec_loaded = None
 EMBEDDING_FastText_loaded = None
 EMBEDDING_GloVe_loaded = None
+
+count_based_features = ["profane_count", "anger_count", "emoticon_count"]
 
 
 def load_embedding_index(embedding_file):
@@ -79,17 +79,15 @@ def get_coefs(word, *arr): return word, np.asarray(arr, dtype='float32')
 class DNNModel:
     def __init__(self, X_train=None, Y_train=None, algo="CNN", embedding="fasttext",
                  max_features=5000, maxlen=500,
-                 embedding_size=300, load_from_file=None, plot_file_name =None):
+                 embedding_size=300, load_from_file=None):
         self.max_features = max_features
-        self.maxlen = maxlen
+        num_count_features = len(count_based_features)
+        self.maxlen = maxlen + num_count_features
         self.embed_size = embedding_size
         self.embedding_type = embedding
-        self.plot=plot_file_name
-
 
         session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=4, inter_op_parallelism_threads=4)
         K.set_session(tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf))
-
 
         self.algo = algo
         if load_from_file is not None:
@@ -115,7 +113,7 @@ class DNNModel:
         conv_kern_reg = regularizers.l2(0.00001)
         conv_bias_reg = regularizers.l2(0.00001)
 
-        comment = tf.keras.layers.Input(shape=(self.maxlen + 1,))
+        comment = tf.keras.layers.Input(shape=(self.maxlen,))
         emb_comment = tf.keras.layers.Embedding(self.max_features, self.embed_size, weights=[self.embedding_matrix],
                                                 trainable=train_embed)(comment)
         emb_comment = tf.keras.layers.SpatialDropout1D(spatial_dropout)(emb_comment)
@@ -229,7 +227,7 @@ class DNNModel:
 
     ## this is bidirectional GRU  model
     def _create_GRU_Model(self):
-        inp = tf.keras.layers.Input(shape=(self.maxlen + 1,))
+        inp = tf.keras.layers.Input(shape=(self.maxlen,))
         x = tf.keras.layers.Embedding(self.max_features, self.embed_size, weights=[self.embedding_matrix])(inp)
         x = tf.keras.layers.SpatialDropout1D(0.2)(x)
 
@@ -246,7 +244,7 @@ class DNNModel:
 
     ## this is bi directional LSTM model
     def _create_biLSTM_Model(self):
-        inp = tf.keras.layers.Input(shape=(self.maxlen + 1,))
+        inp = tf.keras.layers.Input(shape=(self.maxlen,))
         x = tf.keras.layers.Embedding(self.max_features, self.embed_size, weights=[self.embedding_matrix])(inp)
         x = tf.keras.layers.Bidirectional(
             tf.keras.layers.LSTM(50, return_sequences=True, dropout=0.1, recurrent_dropout=0.1))(x)
@@ -284,7 +282,7 @@ class DNNModel:
     def _create_uniLSTM_Model(self):
         model = tf.keras.Sequential()
 
-        model.add(tf.keras.layers.Embedding(self.max_features, self.embed_size, input_length=self.maxlen + 1,
+        model.add(tf.keras.layers.Embedding(self.max_features, self.embed_size, input_length=self.maxlen,
                                             weights=[self.embedding_matrix], trainable=False))
         model.add(tf.keras.layers.Dropout(0.4))
 
@@ -310,12 +308,15 @@ class DNNModel:
 
     def _prepare_df(self, df):
         df_msg = df['message']
-        df_profane_count = df['profane_count'].to_numpy()
-        df_profane_count = np.expand_dims(df_profane_count, axis=1)
+
+        num_count_features = len(count_based_features)
+
+        df_manual_features = df[[c for c in df.columns if c in count_based_features]]
+        manual_feature_list = df_manual_features.to_numpy()
 
         df_msg = self.tokenizer.texts_to_sequences(df_msg)
-        df_msg = sequence.pad_sequences(df_msg, maxlen=self.maxlen)
-        df_merged = np.hstack((df_msg, df_profane_count))
+        df_msg = sequence.pad_sequences(df_msg, maxlen=self.maxlen - num_count_features)
+        df_merged = np.hstack((df_msg, manual_feature_list))
         return df_merged
 
     def _create_embedding(self):
@@ -348,8 +349,6 @@ class DNNModel:
         X_train_vector = self._prepare_df(X_train)
 
         if model is not None:
-            if self.plot is not None:
-                tf.keras.utils.plot_model(model, to_file=self.plot, show_shapes=True)
             ##convert Y_train to np.ndaaray
             Y_train = Y_train.values
 
@@ -365,8 +364,6 @@ class DNNModel:
     def predict(self, X_test):
         X_test_mapped = self._prepare_df(X_test)
         y_pred = self.model.predict(X_test_mapped, batch_size=32)
-
-        y_pred = np.where(y_pred >= 0.5, 1, 0)
         return y_pred
 
     def attention(self, X_test):

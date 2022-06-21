@@ -36,12 +36,17 @@ def read_dataframe_from_excel(file):
 class ToxiCR:
     def __init__(self, ALGO="RF", embedding="tfidf",
                  model_file="models/code-review-dataset-full.xlsx", split_identifier=False,
-                 remove_keywords=False, count_profanity=True, load_pretrained=False):
+                 remove_keywords=False, count_profanity=True,
+                 count_anger_words=False,
+                 count_emoticon=False,
+                 load_pretrained=False):
         self.classifier_model = None
         self.modelFile = model_file
         self.split_identifier = split_identifier
         self.remove_keywords = remove_keywords
         self.count_profanity = count_profanity
+        self.count_anger = count_anger_words
+        self.count_emoticon = count_emoticon
         self.profanity_checker = PatternTokenizer()
         self.source_code_checker = IdentifierTokenizer()
         self.ALGO = ALGO
@@ -56,6 +61,18 @@ class ToxiCR:
                 apply(self.profanity_checker.count_profanities)
         else:
             dataframe["profane_count"] = 0
+
+        if self.count_anger:
+            dataframe["anger_count"] = dataframe.message.astype(str). \
+                apply(self.profanity_checker.count_anger_words)
+        else:
+            dataframe["anger_count"] = 0
+
+        if self.count_emoticon:
+            dataframe["emoticon_count"] = dataframe.message.astype(str). \
+                apply(self.profanity_checker.emoji_counter)
+        else:
+            dataframe["emoticon_count"] = 0
 
     def get_training_data(self):
         self.preprocess(self.training_data)
@@ -104,14 +121,14 @@ class ToxiCR:
 
     def __train_predictor(self):
         self.preprocess(self.training_data)
-        X_train = self.training_data[['message', 'profane_count']]
+        X_train = self.training_data[["message", "profane_count", "anger_count", "emoticon_count"]]
         Y_train = self.training_data[['is_toxic']]
         # train model using full dataset
         self.get_model(X_train, Y_train)
 
     def train_for_tuning(self):
         self.preprocess(self.training_data)
-        X_train = self.training_data[['message', 'profane_count']]
+        X_train = self.training_data[["message", "profane_count", "anger_count", "emoticon_count"]]
         Y_train = self.training_data[['is_toxic']]
         # train model using full dataset
         self.get_model(X_train, Y_train, tuning=True)
@@ -119,7 +136,7 @@ class ToxiCR:
     def save_trained_model(self):
         ALGO = self.ALGO
         filename = self.getPTMName()
-        if ((ALGO == "BERT") | (ALGO == "CNN") | (ALGO == "LSTM") | \
+        if ((ALGO == "BERT") | (ALGO == "ALBERT") | (ALGO == "SBERT") | (ALGO == "CNN") | (ALGO == "LSTM") | \
                 (ALGO == "GRU") | (ALGO == "biLSTM")):
             self.classifier_model.save_to_file(filename)
         elif ((ALGO == "RF") | (ALGO == "GBT") | (ALGO == "SVM") | (ALGO == "DT") | (ALGO == "LR")):
@@ -141,7 +158,7 @@ class ToxiCR:
                 self.classifier_model = DNNModels.DNNModel(algo=ALGO, embedding=self.embedding,
                                                            load_from_file=filename)
                 return True
-            elif (ALGO == "BERT"):
+            elif (ALGO == "BERT") | (ALGO == "ALBERT") | (ALGO == "SBERT"):
                 from TransformerModel import TransformerModel
                 self.classifier_model = TransformerModel(load_from_file=filename)
                 return True
@@ -151,26 +168,24 @@ class ToxiCR:
 
     def get_model(self, X_train, Y_train, tuning=False):
         ALGO = self.ALGO
-        plot_file_name = "./architecture/" + ALGO + ".png"
         if (ALGO == "RF") | (ALGO == "GBT") | (ALGO == "SVM") | (ALGO == "DT") | (ALGO == "LR"):
             self.classifier_model = CLEModel(X_train=X_train, Y_train=Y_train, algo=self.ALGO, tuning=tuning)
-        elif ALGO == "BERT":
+        elif (ALGO == "BERT") | (ALGO == "ALBERT") | (ALGO == "SBERT"):
             from TransformerModel import TransformerModel
-            self.classifier_model = TransformerModel(X_train=X_train, Y_train=Y_train, plot_file_name=plot_file_name)
-        elif (ALGO == "CNN") | (ALGO == "LSTM") | (ALGO == "GRU") | (ALGO == "biLSTM") :
+            self.classifier_model = TransformerModel(X_train=X_train, Y_train=Y_train)
+        elif (ALGO == "CNN") | (ALGO == "LSTM") | (ALGO == "GRU") | (ALGO == "biLSTM"):
             import DNNModels
 
             self.classifier_model = DNNModels.DNNModel(X_train=X_train,
                                                        Y_train=Y_train,
-                                                       algo=ALGO, plot_file_name=plot_file_name,
-                                                       embedding=self.embedding)
+                                                       algo=ALGO, embedding=self.embedding)
         else:
             print("Unknown algorithm: "+ALGO)
             exit(1)
 
         return self.classifier_model
 
-    def get_toxicity_class(self, texts):
+    def get_toxicity_probability(self, texts):
         dataframe = pd.DataFrame(texts, columns=['message'])
         self.preprocess(dataframe)
         # print(dataframe)
@@ -202,12 +217,13 @@ def ten_fold_cross_validation(toxicClassifier, rand_state):
         print("Using split-" + str(count) + " as test data..")
         results = results + str(count) + "," + ALGO + ","
 
-        X_train, X_test = dataset.loc[train_index, ["message", "profane_count"]], \
-                          dataset.loc[test_index, ["message", "profane_count"]]
+        X_train, X_test = dataset.loc[train_index, ["message", "profane_count", "anger_count", "emoticon_count"]], \
+                          dataset.loc[test_index, ["message", "profane_count", "anger_count", "emoticon_count"]]
         Y_train, Y_test = dataset.loc[train_index, "is_toxic"], dataset.loc[test_index, "is_toxic"]
         classifier_model = toxicClassifier.get_model(X_train, Y_train)
 
-        predictions = classifier_model.predict(X_test)
+        Y_prob = classifier_model.predict(X_test)
+        predictions = [1 if pred >= 0.5 else 0 for pred in Y_prob]
         misclassified = get_misclassifications(X_test, Y_test, predictions)
 
         stop = timeit.default_timer()
@@ -243,16 +259,20 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='ToxiCR: A supervised Toxicity Analysis tool for the SE domain')
 
     parser.add_argument('--algo', type=str,
-                        help='Classification algorithm. Choices are: RF| DT| SVM| LR| GBT| CNN| LSTM| GRU| biLSTM| BERT',
+                        help='Classification algorithm. Choices are: RF| DT| SVM| LR| GBT| CNN|' +
+                             ' LSTM| GRU| biLSTM|  BERT| ALBERT| SBERT',
                         default="RF")
 
-    parser.add_argument('--repeat', type=int, help='Iteration count', default=5)
-    parser.add_argument('--embed', type=str, help='Word embedding Choices are: tfidf| fasttext | word2vec | glove | bert',
+    parser.add_argument('--repeat', type=int, help='Iteration count', default=2)
+    parser.add_argument('--embed', type=str,
+                        help='Word embedding Choices are: tfidf| fasttext | word2vec | glove | bert',
                         default="tfidf")
 
     parser.add_argument('--split', help='Split identifiers', action='store_true', default=False)
     parser.add_argument('--keyword', help='Remove programming keywords', action='store_true', default=False)
     parser.add_argument('--profanity', help='Count profane words', action='store_true', default=False)
+    parser.add_argument('--anger', help='Count anger words', action='store_true', default=False)
+    parser.add_argument('--emoticon', help='Count emoticons', action='store_true', default=False)
     parser.add_argument('--retro', help='Print missclassifications',
                         action='store_true', default=False)  # default False, will not write
     parser.add_argument('--mode', type=str,
@@ -267,7 +287,9 @@ if __name__ == '__main__':
     embedding = args.embed
     mode = args.mode
     toxicClassifier = ToxiCR(split_identifier=args.split, remove_keywords=args.keyword, count_profanity=args.profanity,
-                             ALGO=ALGO, embedding=embedding)
+                             ALGO=ALGO, count_emoticon=args.emoticon,
+                             count_anger_words=args.anger,
+                             embedding=embedding)
 
     if mode == 'tuning':
         if (ALGO == 'RF') | (ALGO == 'DT'):

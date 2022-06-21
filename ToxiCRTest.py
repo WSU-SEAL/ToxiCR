@@ -75,6 +75,6 @@ sentences=["go fuck yourself",
            "Nothing particular to worry about"]
 
 
-results=toxicClassifier.get_toxicity_class(sentences)
+results = toxicClassifier.get_toxicity_probability(sentences)
 for i in range(len(sentences)):
-    print("\""+sentences[i]+"\" ->"+str(results[i])) #1 means toxic.
+    print("\"" + sentences[i] + "\" ->" + str(results[i]))  # probablity of being toxic.

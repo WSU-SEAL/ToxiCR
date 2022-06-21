@@ -12,8 +12,11 @@
 
 import copy
 import re
-from nltk import  word_tokenize
+from nltk import word_tokenize
 from ITokenizer import BaseTokenizer, read_lines_from_model
+
+emoticon_list = {':)', ':(', ':/', ':O', ':o', ':-(', '>:)', '<|:O', ':?:', ':-|', '|-O',
+                 '</3', ':(', ':-)', ':-*', ':D', '<3', ':S', ':P', ';)', ';-)', ':-o'}
 
 RE_PATTERNS = {
 
@@ -225,7 +228,8 @@ class PatternTokenizer(BaseTokenizer):
         self.patterns = patterns
         self.initial_filters = initial_filters
         self.remove_repetitions = remove_repetitions
-        self.profanity_list= read_lines_from_model('models/profane-words.txt')
+        self.profanity_list = read_lines_from_model('models/profane-words.txt')
+        self.anger_word_list = read_lines_from_model('models/anger-words.txt')
 
     def process_text(self, text):
         x = self._preprocess(text)
@@ -236,13 +240,24 @@ class PatternTokenizer(BaseTokenizer):
         return x
 
     def count_profanities(self, text):
-        count=0
-        words=word_tokenize(text)
+        count = 0
+        words = word_tokenize(text)
         for profane_word in self.profanity_list:
             if profane_word in words:
-                #print(profane_word)
-                count=count+1
+                # print(profane_word)
+                count = count + 1
         return count
+
+    def count_anger_words(self, text):
+        count = 0
+        words = word_tokenize(text)
+        for anger_word in self.anger_word_list:
+            if anger_word in words:
+                count = count + 1
+        return count
+
+    def emoji_counter(self, text):
+        return len(list(filter(lambda x: x in emoticon_list, text.split(' '))))
 
     def process_ds(self, ds):
         ### ds = Data series

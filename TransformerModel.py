@@ -27,6 +27,17 @@ from sklearn.model_selection import KFold, train_test_split
 from tensorflow.keras.callbacks import EarlyStopping
 
 
+def getPTM(model_name):
+    if model_name == "BERT":
+        return 'bert_en_uncased_L-12_H-768_A-12'
+    elif model_name == "ALBERT":
+        return 'albert_en_base'
+    elif model_name == 'SBERT':
+        return 'wiki-books-sst'
+    else:
+        return None
+
+
 def df_to_dataset(dataframe, batch_size=16):
     dataframe = dataframe.copy()
     labels = dataframe.pop('target')
@@ -38,10 +49,14 @@ def df_to_dataset(dataframe, batch_size=16):
 
 class TransformerModel:
     def __init__(self, X_train=None, Y_train=None,
-                 bert_model_name="bert_en_uncased_L-12_H-768_A-12", load_from_file=None,
-                 plot_file_name=None):
-        self.tfhub_handle_encoder = BertLocator.getBERTEncoderURL(bert_model_name)
-        self.tfhub_handle_preprocess = BertLocator.getPreprocessURL(bert_model_name)
+                 model_name="BERT", load_from_file=None):
+
+        encoder = getPTM(model_name)
+        if encoder is None:
+            print("Unknown transformer: " + model_name)
+            exit(1)
+        self.tfhub_handle_encoder = BertLocator.getBERTEncoderURL(encoder)
+        self.tfhub_handle_preprocess = BertLocator.getPreprocessURL(encoder)
 
         print(f'BERT model selected           : {self.tfhub_handle_encoder}')
         print(f'Preprocess model auto-selected: {self.tfhub_handle_preprocess}')
@@ -49,19 +64,29 @@ class TransformerModel:
         self.bert_preprocess_model = hub.KerasLayer(self.tfhub_handle_preprocess)
         self.bert_model = hub.KerasLayer(self.tfhub_handle_encoder)
         self.epochs = 20
-        self.plot=plot_file_name
 
         if load_from_file is not None:
             self.steps_per_epoch = 19571  # size of our dataset
             optimizer = self.get_optimizer()
-            self._model = tf.keras.models.load_model(load_from_file, custom_objects={'KerasLayer':hub.KerasLayer,
+            self._model = tf.keras.models.load_model(load_from_file, custom_objects={'KerasLayer': hub.KerasLayer,
                                                                                      'AdamWeightDecay': optimizer})
         else:
             self.steps_per_epoch = X_train.shape[0]
             self._train(X_train, Y_train)
 
+    def append_numerical_feature(self, row):
+        message = row['message']
+        if row['profane_count'] > 0:
+            message = message + " includes profanity. "
+        if row['anger_count'] > 0:
+            message = message + " includes anger word. "
+        if row['emoticon_count'] > 0:
+            message = message + " includes emoticon. "
+
+        return message
+
     def build_classifier_model(self):
-        text_input = tf.keras.layers.Input(shape=(), dtype=tf.string, name='message')
+        text_input = tf.keras.layers.Input(shape=(), dtype=tf.string, name='text')
         preprocessing_layer = hub.KerasLayer(self.tfhub_handle_preprocess, name='preprocessing')
         encoder_inputs = preprocessing_layer(text_input)
         encoder = hub.KerasLayer(self.tfhub_handle_encoder, trainable=True, name='BERT_encoder')
@@ -79,8 +104,8 @@ class TransformerModel:
         classifier_model.compile(optimizer=optimizer,
                                  loss=loss,
                                  metrics=metrics)
-        if self.plot is not None:
-            tf.keras.utils.plot_model(classifier_model, to_file=self.plot, show_shapes=True)
+        # if self.plot is not None:
+        #    tf.keras.utils.plot_model(classifier_model, to_file=self.plot, show_shapes=True)
         return classifier_model
 
     def get_optimizer(self):
@@ -96,7 +121,8 @@ class TransformerModel:
     def _train(self, X_train, Y_train):
         self._model = self.build_classifier_model()
         if self._model is not None:
-            X_train.drop('profane_count', inplace=True, axis=1)  # option not applicable for BERT
+            X_train["text"] = X_train.apply(self.append_numerical_feature, axis=1)
+            X_train = X_train[["text"]]
             x_new_train, x_validation, y_new_train, y_validation = train_test_split(X_train, Y_train, test_size=0.11115,
                                                                                     random_state=random.randint(1,
                                                                                                                 10000))
@@ -113,8 +139,8 @@ class TransformerModel:
             x_validation['target'] = y_validation.to_numpy()
             validation_ds = df_to_dataset(x_validation)
 
-            es_callback = EarlyStopping(monitor='val_loss', patience=3)
-            self._model.fit(x=train_ds, validation_data=validation_ds, epochs=15, callbacks=[es_callback])
+            es_callback = EarlyStopping(monitor='val_loss', patience=4, restore_best_weights=True)
+            self._model.fit(x=train_ds, validation_data=validation_ds, epochs=20, callbacks=[es_callback])
 
     def predict(self, X_values, batch_size=256):
 
@@ -131,7 +157,6 @@ class TransformerModel:
 
             partition = test_values[start:end]
             y_pred = tf.sigmoid(self._model(tf.constant(partition)))
-            y_pred = [1 if pred >= 0.5 else 0 for pred in y_pred]  # Threshold: 0.5
             predictions = np.append(predictions, y_pred)
 
         return predictions
