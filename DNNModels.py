@@ -26,6 +26,15 @@ from tensorflow.keras.preprocessing import text, sequence
 from tensorflow.python.keras import backend as K
 import  random
 
+############ LINNEA ADDED to fix path error 
+import os
+import sys
+
+CURRENT_PATH = os.path.dirname(__file__)
+TOXICR_PATH = os.path.abspath(os.path.join(CURRENT_PATH, "./"))
+sys.path.insert(1, TOXICR_PATH)
+############# LINNEA ADDED to fix path error 
+
 # from keras.models import Model
 
 

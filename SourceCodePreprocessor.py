@@ -13,11 +13,20 @@
 from ITokenizer import BaseTokenizer, read_lines_from_model
 import re
 
+############ LINNEA ADDED to fix path error 
+import os
+import sys
+
+CURRENT_PATH = os.path.dirname(__file__)
+TOXICR_PATH = os.path.abspath(os.path.join(CURRENT_PATH, "./"))
+sys.path.insert(1, TOXICR_PATH)
+############# LINNEA ADDED to fix path error 
+
 
 class IdentifierTokenizer(BaseTokenizer):
     def __init__(self):
 
-        self.programming_keywords_list = read_lines_from_model('models/programming_keywords.txt')
+        self.programming_keywords_list = read_lines_from_model(TOXICR_PATH + '/models/programming_keywords.txt')
 
     def split_identifiers(self, text):
         result = re.sub('[_]+', ' ', text) # replace underscores with space

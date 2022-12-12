@@ -51,7 +51,7 @@ from ToxiCR import ToxiCR
 #                        embedding="fasttext", load_pretrained=True)
 
 # Bert, the best performing model
-toxicClassifier=ToxiCR(ALGO="BERT", count_profanity=False, remove_keywords=True, split_identifier=False,
+toxicClassifier=ToxiCR(ALGO="BERT", count_profanity=False, remove_keywords=False, split_identifier=False,
                        embedding="bert", load_pretrained=True)
 
 toxicClassifier.init_predictor()
