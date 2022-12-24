@@ -13,7 +13,7 @@ import os.path
 import pickle
 import pandas as pd
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, StratifiedKFold
 
 from ContractionPreprocessor import expand_contraction, rem_special_sym, remove_url
 from ProfanityPreprocessor import PatternTokenizer
@@ -93,6 +93,7 @@ class ToxiCR:
 
         if self.remove_keywords:
             processed_text = self.source_code_checker.remove_keywords(processed_text)
+        #print( processed_text)
         return processed_text
 
     def init_predictor(self):
@@ -108,7 +109,7 @@ class ToxiCR:
 
     def getPTMName(self):
         ALGO=self.ALGO
-        filename = "pre-trained/model-" + ALGO + "-" + str(self.embedding) + "-profane-" \
+        filename = "./pre-trained/model-" + ALGO + "-" + str(self.embedding) + "-profane-" \
                    + str(self.count_profanity) + "-keyword-" + str(self.remove_keywords) + "-split-" \
                    + str(self.split_identifier)
         if ((ALGO == "CNN") | (ALGO == "LSTM") | (ALGO == "GRU") | (ALGO == "biLSTM")):
@@ -188,7 +189,7 @@ class ToxiCR:
     def get_toxicity_probability(self, texts):
         dataframe = pd.DataFrame(texts, columns=['message'])
         self.preprocess(dataframe)
-        # print(dataframe)
+        #print(dataframe)
         results = self.classifier_model.predict(dataframe)
         return results
 
@@ -206,13 +207,18 @@ def get_misclassifications(dataframe, labels, predictions):
 
 def ten_fold_cross_validation(toxicClassifier, rand_state):
     dataset = toxicClassifier.get_training_data()
+
+    dataset.to_excel("count-profane.xlsx")
+
+    skf =StratifiedKFold(n_splits=10, shuffle=True, random_state=rand_state)
+
     kf = KFold(n_splits=10, shuffle=True, random_state=rand_state)
     results = ""
 
     count = 1
     all_misclassifications = pd.DataFrame()
 
-    for train_index, test_index in kf.split(dataset):
+    for train_index, test_index in skf.split(dataset, dataset["is_toxic"]):
         start = timeit.default_timer()
         print("Using split-" + str(count) + " as test data..")
         results = results + str(count) + "," + ALGO + ","

@@ -11,10 +11,12 @@
 # GNU General Public License for more details.
 
 from random import random
-
+from tqdm import tqdm, trange
 import tensorflow as tf
 import tensorflow_hub as hub
 import  tensorflow_text as text
+from official.nlp.optimization import WarmUp
+
 import BertLocator
 import random
 import numpy as np
@@ -24,7 +26,6 @@ from official.nlp import optimization  # to create AdamW optmizer
 tf.get_logger().setLevel('ERROR')
 
 from sklearn.model_selection import KFold, train_test_split
-from tensorflow.keras.callbacks import EarlyStopping
 
 
 def getPTM(model_name):
@@ -67,9 +68,12 @@ class TransformerModel:
 
         if load_from_file is not None:
             self.steps_per_epoch = 19571  # size of our dataset
+            custom_model = self.build_classifier_model()
+            config =custom_model.get_config()
             optimizer = self.get_optimizer()
-            self._model = tf.keras.models.load_model(load_from_file, custom_objects={'KerasLayer': hub.KerasLayer,
-                                                                                     'AdamWeightDecay': optimizer})
+            self._model = tf.keras.models.load_model(load_from_file,  custom_objects={'KerasLayer': hub.KerasLayer,
+                                                                                     'AdamWeightDecay': optimizer,
+                                                                                      'WarmUp': WarmUp})
         else:
             self.steps_per_epoch = X_train.shape[0]
             self._train(X_train, Y_train)
@@ -139,17 +143,19 @@ class TransformerModel:
             x_validation['target'] = y_validation.to_numpy()
             validation_ds = df_to_dataset(x_validation)
 
-            es_callback = EarlyStopping(monitor='val_loss', patience=4, restore_best_weights=True)
+            es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=4, restore_best_weights=True)
             self._model.fit(x=train_ds, validation_data=validation_ds, epochs=20, callbacks=[es_callback])
+
 
     def predict(self, X_values, batch_size=256):
 
-        test_values = X_values['message'].values
+        test_values =X_values["message"].values
         value_count = len(test_values)
         predictions = np.array([])
         num_partitions = math.ceil(value_count / batch_size)
+        progress_bar=tqdm(num_partitions)
 
-        for part in range(0, num_partitions):
+        for part in trange(0, num_partitions):
             start = part * batch_size
             end = start + batch_size
             if end > value_count:
@@ -157,6 +163,7 @@ class TransformerModel:
 
             partition = test_values[start:end]
             y_pred = tf.sigmoid(self._model(tf.constant(partition)))
+            #y_pred = [1 if pred >= 0.5 else 0 for pred in y_pred]  # Threshold: 0.5
             predictions = np.append(predictions, y_pred)
 
         return predictions
