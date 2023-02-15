@@ -25,6 +25,15 @@ import warnings
 import random
 import timeit
 
+############ LINNEA ADDED to fix path error 
+import os
+import sys
+
+CURRENT_PATH = os.path.dirname(__file__)
+TOXICR_PATH = os.path.abspath(os.path.join(CURRENT_PATH, "./"))
+sys.path.insert(1, TOXICR_PATH)
+############# LINNEA ADDED to fix path error
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
@@ -35,7 +44,7 @@ def read_dataframe_from_excel(file):
 
 class ToxiCR:
     def __init__(self, ALGO="RF", embedding="tfidf",
-                 model_file="models/code-review-dataset-full.xlsx", split_identifier=False,
+                 model_file=TOXICR_PATH + "/models/code-review-dataset-full.xlsx", split_identifier=False,
                  remove_keywords=False, count_profanity=True,
                  count_anger_words=False,
                  count_emoticon=False,
@@ -99,18 +108,19 @@ class ToxiCR:
     def init_predictor(self):
         if self.load_pretrained:
             filename = self.getPTMName()
+            
             loadstatus = self.load_pretrained_model(filename)
             if loadstatus:
                 print("Successfully loaded pretrained model from "+filename)
                 return
             else:
-                print("Unable to load pretrained model.."+filename)
+                print("Unable to load pretrained model: "+filename)
         self.__train_predictor()
 
     def getPTMName(self):
         ALGO=self.ALGO
-        filename = "./pre-trained/model-" + ALGO + "-" + str(self.embedding) + "-profane-" \
-                   + str(self.count_profanity) + "-keyword-" + str(self.remove_keywords) + "-split-" \
+        filename = TOXICR_PATH + "/pre-trained/model-" + ALGO + "-" + str(self.embedding) + "-profane-" \
+ + str(self.count_profanity) + "-keyword-" + str(self.remove_keywords) + "-split-" \
                    + str(self.split_identifier)
         if ((ALGO == "CNN") | (ALGO == "LSTM") | (ALGO == "GRU") | (ALGO == "biLSTM")):
             filename = filename + ".h5"
@@ -118,6 +128,9 @@ class ToxiCR:
             filename = filename + ".h5"
         elif ((ALGO == "RF") | (ALGO == "GBT") | (ALGO == "SVM") | (ALGO == "DT") | (ALGO == "LR")):
             filename = filename + ".pickle"
+               
+        print("getPTMName ", filename)
+            
         return filename
 
     def __train_predictor(self):

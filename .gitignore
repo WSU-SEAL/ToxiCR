@@ -1,2 +1,9 @@
 embedings/crawl-300d-2M.vec
 embedings/glove.840B.300d.txt
+*.ipynb_notebooks
+slurm/*
+!slurm/.gitkeep
+pre-trained/*
+batch.slurm
+__pycache__/
+*.ipynb_checkpoints

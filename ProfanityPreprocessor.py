@@ -15,6 +15,15 @@ import re
 from nltk import word_tokenize
 from ITokenizer import BaseTokenizer, read_lines_from_model
 
+############ LINNEA ADDED to fix path error 
+import os
+import sys
+
+CURRENT_PATH = os.path.dirname(__file__)
+TOXICR_PATH = os.path.abspath(os.path.join(CURRENT_PATH, "./"))
+sys.path.insert(1, TOXICR_PATH)
+############# LINNEA ADDED to fix path error 
+
 emoticon_list = {':)', ':(', ':/', ':O', ':o', ':-(', '>:)', '<|:O', ':?:', ':-|', '|-O',
                  '</3', ':(', ':-)', ':-*', ':D', '<3', ':S', ':P', ';)', ';-)', ':-o'}
 
@@ -228,8 +237,8 @@ class PatternTokenizer(BaseTokenizer):
         self.patterns = patterns
         self.initial_filters = initial_filters
         self.remove_repetitions = remove_repetitions
-        self.profanity_list = read_lines_from_model('models/profane-words.txt')
-        self.anger_word_list = read_lines_from_model('models/anger-words.txt')
+        self.profanity_list = read_lines_from_model(TOXICR_PATH + '/models/profane-words.txt')
+        self.anger_word_list = read_lines_from_model(TOXICR_PATH + '/models/anger-words.txt')
 
     def process_text(self, text):
         x = self._preprocess(text)
