@@ -1,8 +1,8 @@
 # ToxiCR
 A supervised learning based tool to identify toxic code review comments
 
-Read Our Papers
-\\
+Read Our Papers <br />
+
 [TOSEM-23: "Automated Identification of Toxic Code Reviews Using ToxiCR",  https://dl.acm.org/doi/10.1145/3583562]
 
 [ASE 2022 (Short paper appeared in SRP): "https://dl.acm.org/doi/10.1145/3551349.3559508"]
