@@ -42,9 +42,9 @@ RE_PATTERNS = {
 
     ' crap ':
         [
-            '(c)(r|[^a-z0-9 ])(a|[^a-z0-9 ])(p|[^a-z0-9 ])([^ ])*',
-            '(c)([^a-z]*)(r)([^a-z]*)(a)([^a-z]*)(p)',
-            ' c[!@#\$%\^\&\*]*r[!@#\$%\^&\*]*p', 'cr@p', 'c r a p',
+            ' (c)(r|[^a-z0-9 ])(a|[^a-z0-9 ])(p|[^a-z0-9 ])([^ ])*',
+            ' (c)([^a-z]*)(r)([^a-z]*)(a)([^a-z]*)(p)',
+            ' c[!@#\$%\^\&\*]*r[!@#\$%\^&\*]*p', 'cr@p', ' c r a p',
 
         ],
 
@@ -62,9 +62,9 @@ RE_PATTERNS = {
 
     ' bitch ':
         [
-            'bitches', 'b[w]*i[t]*ch', 'b!tch',
-            'bi\+ch', 'b!\+ch', '(b)([^a-z]*)(i)([^a-z]*)(t)([^a-z]*)(c)([^a-z]*)(h)',
-            'biatch', 'bi\*\*h', 'bytch', 'b i t c h'
+            'bitches', ' b[w]*i[t]*ch', ' b!tch',
+            ' bi\+ch', ' b!\+ch', ' (b)([^a-z]*)(i)([^a-z]*)(t)([^a-z]*)(c)([^a-z]*)(h)',
+            ' biatch', ' bi\*\*h', ' bytch', 'b i t c h'
         ],
 
     ' bastard ':
