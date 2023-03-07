@@ -24,7 +24,7 @@ GNU General Public License for more details.
 ## Citation for our paper
 If you use our work, please cite our paper:
 
-#[TOSEM-23: "Automated Identification of Toxic Code Reviews Using ToxiCR"
+TOSEM-23: "Automated Identification of Toxic Code Reviews Using ToxiCR"
 ```
 @article{10.1145/3583562,
 author = {Sarker, Jaydeb and Turzo, Asif Kamal and Dong, Ming and Bosu, Amiangshu},
@@ -42,7 +42,7 @@ keywords = {natural language processing, tool development, toxicity, sentiment a
 }
 ```
 
-#[ASE 2022 (Short paper): "‘Who built this crap?’ Developing a Software Engineering Domain Specific Toxicity Detector" 
+ASE 2022 (Short paper): "‘Who built this crap?’ Developing a Software Engineering Domain Specific Toxicity Detector" 
 
 ```
 @inproceedings{10.1145/3551349.3559508,
