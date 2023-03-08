@@ -8,15 +8,15 @@ Read Our Papers <br />
 #[ASE 2022 (Short paper appeared in SRP): "‘Who built this crap?’ Developing a Software Engineering Domain Specific Toxicity Detector" "https://dl.acm.org/doi/10.1145/3551349.3559508"]
 
 ## Instructions to use 
-clone/download the project
+clone/download the project </br>
 $git clone https://github.com/WSU-SEAL/ToxiCR.git
 
-#install all the requirements: $ pip install -r "requirements.txt"
+#install all the requirements: </br>
+$ pip install -r "requirements.txt"
 
 
-
-#to run the best performing BERT model (with keyword preprocessing) use the following command:
-python ToxiCR.py --algo BERT --embed bert --keyword --mode pretrain
+#to run the best performing BERT model (with keyword preprocessing) use the following command:</br>
+$ python ToxiCR.py --algo BERT --embed bert --keyword --mode pretrain
 
 
  Copyright Software Engineering Analytics Lab (SEAL), Wayne State University, 2022
