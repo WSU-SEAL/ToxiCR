@@ -23,9 +23,14 @@ $ python ToxiCR.py --h
   <img width="450" height="250" src="toxiCRinterface.jpg">
 </p>
 
+You can select any mode after:  $ python ToxiCR.py (put arguments)
 
-#to run the best performing BERT model (with keyword preprocessing) use the following command:</br>
+<b> Retrain mode: </b>
+to retrain the best performing BERT model (with keyword preprocessing): </br>
 $ python ToxiCR.py --algo BERT --embed bert --keyword --mode pretrain
+
+<b> Test Mode: </b>
+$ python ToxiCRTest.py
 
 
  Copyright Software Engineering Analytics Lab (SEAL), Wayne State University, 2022
