@@ -20,7 +20,7 @@ $ python ToxiCR.py --h
 
 
 <p align="center">
-  <img width="400" height="450" src="toxiCRinterface.jpg">
+  <img width="400" height="300" src="toxiCRinterface.jpg">
 </p>
 
 
