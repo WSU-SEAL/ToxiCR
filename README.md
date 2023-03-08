@@ -5,9 +5,9 @@ Read Our Papers <br />
 
 #[TOSEM-23: "Automated Identification of Toxic Code Reviews Using ToxiCR",  https://dl.acm.org/doi/10.1145/3583562]
 
-#[ASE 2022 (Short paper appeared in SRP): "‘Who built this crap?’ Developing a Software Engineering Domain Specific Toxicity Detector" "https://dl.acm.org/doi/10.1145/3551349.3559508"]
+#[ASE 2022 (Short paper appeared in SRP): "‘Who built this crap?’ Developing a Software Engineering Domain Specific Toxicity Detector" https://dl.acm.org/doi/10.1145/3551349.3559508]
 
-## Instructions to use 
+## Instructions to use the tool 
 clone/download the project </br>
 $git clone https://github.com/WSU-SEAL/ToxiCR.git
 
@@ -33,6 +33,7 @@ $ python ToxiCR.py --algo BERT --embed bert --keyword --mode pretrain
 $ python ToxiCRTest.py
 
 
+## Copyright Information
  Copyright Software Engineering Analytics Lab (SEAL), Wayne State University, 2022
  Authors: Jaydeb Sarker <jaydebsarker@wayne.edu> and Amiangshu Bosu <abosu@wayne.edu>
 
@@ -47,7 +48,7 @@ GNU General Public License for more details.
 
 
 
-## Citation for our paper
+## Citation for our papers
 If you use our work, please cite our paper:
 
 TOSEM-23: "Automated Identification of Toxic Code Reviews Using ToxiCR"
