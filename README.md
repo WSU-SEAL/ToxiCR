@@ -15,6 +15,15 @@ $git clone https://github.com/WSU-SEAL/ToxiCR.git
 $ pip install -r "requirements.txt"
 
 
+Now, you can view all the options for ToxiCR.py file using:</br>
+$ python ToxiCR.py --h
+
+
+<p align="center">
+  <img width="400" height="450" src="toxiCRinterface.jpg">
+</p>
+
+
 #to run the best performing BERT model (with keyword preprocessing) use the following command:</br>
 $ python ToxiCR.py --algo BERT --embed bert --keyword --mode pretrain
 
