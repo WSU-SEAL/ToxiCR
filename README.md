@@ -7,6 +7,14 @@ Read Our Papers <br />
 
 #[ASE 2022 (Short paper appeared in SRP): "‘Who built this crap?’ Developing a Software Engineering Domain Specific Toxicity Detector" https://dl.acm.org/doi/10.1145/3551349.3559508]
 
+##Datasets
+
+Our code review dataset is: /models/code-review-dataset-full.xlsx <br>
+
+Our dataset contains total 19,671 labeled CR comments (initially, we had 19,571 CR labeled comments). 
+Each comments is labeled as toxic (1) or non-toxic (0). Finally, the number of toxic comments is 3757 (~19% of the dataset). 
+
+
 ## Instructions to use the tool 
 clone/download the project </br>
 $git clone https://github.com/WSU-SEAL/ToxiCR.git
