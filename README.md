@@ -11,7 +11,7 @@ Read Our Papers <br />
 
 Our code review dataset is: /models/code-review-dataset-full.xlsx <br>
 
-Our dataset contains total 19,671 labeled CR comments (initially, we had 19,571 CR labeled comments). 
+Our dataset contains total 19,651 labeled CR comments. 
 Each comments is labeled as toxic (1) or non-toxic (0). Finally, the number of toxic comments is 3757 (~19% of the dataset). 
 
 
