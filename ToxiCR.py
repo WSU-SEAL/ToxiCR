@@ -43,12 +43,18 @@ def read_dataframe_from_excel(file):
 
 
 class ToxiCR:
-    def __init__(self, ALGO="RF", embedding="tfidf",
-                 model_file=TOXICR_PATH + "/models/code-review-dataset-full.xlsx", split_identifier=False,
-                 remove_keywords=False, count_profanity=True,
-                 count_anger_words=False,
-                 count_emoticon=False,
-                 load_pretrained=False):
+    def __init__(
+            self,
+            ALGO="RF",
+            embedding="tfidf",
+            model_file=TOXICR_PATH + "/models/code-review-dataset-full.xlsx",
+            split_identifier=False,
+            remove_keywords=False,
+            count_profanity=True,
+            count_anger_words=False,
+            count_emoticon=False,
+            load_pretrained=False
+    ):
         self.classifier_model = None
         self.modelFile = model_file
         self.split_identifier = split_identifier
@@ -108,7 +114,6 @@ class ToxiCR:
     def init_predictor(self):
         if self.load_pretrained:
             filename = self.getPTMName()
-            
             loadstatus = self.load_pretrained_model(filename)
             if loadstatus:
                 print("Successfully loaded pretrained model from "+filename)
@@ -275,40 +280,70 @@ def ten_fold_cross_validation(toxicClassifier, rand_state):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='ToxiCR: A supervised Toxicity Analysis tool for the SE domain')
+    parser = argparse.ArgumentParser(
+        description='ToxiCR: A supervised Toxicity Analysis tool for the SE domain'
+    )
 
-    parser.add_argument('--algo', type=str,
-                        help='Classification algorithm. Choices are: RF| DT| SVM| LR| GBT| CNN|' +
-                             ' LSTM| GRU| biLSTM|  BERT| ALBERT| SBERT',
-                        default="RF")
+    parser.add_argument(
+        '--algo',
+        type=str,
+        help='Classification algorithm. Choices are: RF| DT| SVM| LR| GBT| CNN|' +
+             ' LSTM| GRU| biLSTM|  BERT| ALBERT| SBERT',
+        default="RF"
+    )
 
     parser.add_argument('--repeat', type=int, help='Iteration count', default=2)
-    parser.add_argument('--embed', type=str,
-                        help='Word embedding Choices are: tfidf| fasttext | word2vec | glove | bert',
-                        default="tfidf")
+    parser.add_argument(
+        '--embed',
+        type=str,
+        help='Word embedding Choices are: tfidf| fasttext | word2vec | glove | bert',
+        default="tfidf"
+    )
 
     parser.add_argument('--split', help='Split identifiers', action='store_true', default=False)
     parser.add_argument('--keyword', help='Remove programming keywords', action='store_true', default=False)
     parser.add_argument('--profanity', help='Count profane words', action='store_true', default=False)
     parser.add_argument('--anger', help='Count anger words', action='store_true', default=False)
     parser.add_argument('--emoticon', help='Count emoticons', action='store_true', default=False)
-    parser.add_argument('--retro', help='Print missclassifications',
-                        action='store_true', default=False)  # default False, will not write
-    parser.add_argument('--mode', type=str,
-                        help='Execution mode. Choices are: eval | pretrain | tuning',
-                        default="eval")
+    parser.add_argument('--retro', help='Print missclassifications', action='store_true', default=False)
+    parser.add_argument(
+        '--mode', type=str,
+        help='Execution mode. Choices are: eval | pretrain | tuning',
+        default="eval"
+    )
+
+    parser.add_argument(
+            "--load-pretrained",
+            help="Load the pretrained model",
+            action="store_true",
+            default=False
+    )
+
+    parser.add_argument(
+            "--classify",
+            type=str,
+            help="Classify the given text",
+    )
 
     args = parser.parse_args()
 
     print(args)
+
     ALGO = str(args.algo).upper()
     REPEAT = args.repeat
     embedding = args.embed
     mode = args.mode
-    toxicClassifier = ToxiCR(split_identifier=args.split, remove_keywords=args.keyword, count_profanity=args.profanity,
-                             ALGO=ALGO, count_emoticon=args.emoticon,
-                             count_anger_words=args.anger,
-                             embedding=embedding)
+
+    toxicClassifier = ToxiCR(
+            split_identifier=args.split,
+            remove_keywords=args.keyword,
+            count_profanity=args.profanity,
+            ALGO=ALGO, 
+            count_emoticon=args.emoticon,
+            count_anger_words=args.anger,
+            embedding=embedding,
+            load_pretrained=args.load_pretrained
+    )
 
     if mode == 'tuning':
         if (ALGO == 'RF') | (ALGO == 'DT'):
@@ -320,6 +355,13 @@ if __name__ == '__main__':
     elif mode == 'pretrain':
         toxicClassifier.init_predictor()
         toxicClassifier.save_trained_model()
+        exit(0)
+
+    if args.classify:
+        toxicClassifier.init_predictor()
+        texts = args.classify.split(",")
+        results = toxicClassifier.get_toxicity_probability(texts)
+        print(results)
         exit(0)
 
     timers = []
