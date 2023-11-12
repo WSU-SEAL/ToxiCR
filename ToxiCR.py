@@ -325,6 +325,13 @@ if __name__ == '__main__':
             help="Classify the given text",
     )
 
+    parser.add_argument(
+            "--stdin",
+            help="Read from stdin",
+            action="store_true",
+            default=False
+    )
+
     args = parser.parse_args()
 
     print(args)
@@ -362,6 +369,15 @@ if __name__ == '__main__':
         texts = args.classify.split(",")
         results = toxicClassifier.get_toxicity_probability(texts)
         print(results)
+        exit(0)
+
+    if args.stdin:
+        import sys
+        toxicClassifier.init_predictor()
+        for line in sys.stdin:
+            texts = line.strip().split(",")
+            results = toxicClassifier.get_toxicity_probability(texts)
+            print(results)
         exit(0)
 
     timers = []
