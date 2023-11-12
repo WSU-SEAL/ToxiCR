@@ -1,9 +1,10 @@
 # ToxiCR
+
 A supervised learning based tool to identify toxic code review comments
 
 Read Our Papers <br />
 
-#[TOSEM-23: "Automated Identification of Toxic Code Reviews Using ToxiCR",  https://dl.acm.org/doi/10.1145/3583562]
+#[TOSEM-23: "Automated Identification of Toxic Code Reviews Using ToxiCR", https://dl.acm.org/doi/10.1145/3583562]
 
 #[ASE 2022 (Short paper appeared in SRP): "‘Who built this crap?’ Developing a Software Engineering Domain Specific Toxicity Detector" https://dl.acm.org/doi/10.1145/3551349.3559508]
 
@@ -11,39 +12,53 @@ Read Our Papers <br />
 
 Our code review dataset is: /models/code-review-dataset-full.xlsx <br>
 
-Our dataset contains total 19,651 labeled CR comments. 
-Each comments is labeled as toxic (1) or non-toxic (0). Finally, the number of toxic comments is 3757 (~19% of the dataset). 
+Our dataset contains total 19,651 labeled CR comments.
+Each comments is labeled as toxic (1) or non-toxic (0). Finally, the number of toxic comments is 3757 (~19% of the dataset).
 
+## Instructions to use the tool
 
-## Instructions to use the tool 
-clone/download the project </br>
-$git clone https://github.com/WSU-SEAL/ToxiCR.git
+Clone/download the project
 
-#install all the requirements: </br>
-$ pip install -r "requirements.txt"
+```bash
+git clone https://github.com/WSU-SEAL/ToxiCR.git
+```
 
+Install all the requirements:
 
-Now, you can view all the options for ToxiCR.py file using:</br>
-$ python ToxiCR.py --h
+```bash
+pip install -r "requirements.txt"
+```
 
+Now, you can view all the options for ToxiCR.py file using:
+
+```
+python ToxiCR.py --h
+```
 
 <p align="center">
   <img width="450" height="250" src="toxiCRinterface.jpg">
 </p>
 
-You can select any mode after:  $ python ToxiCR.py (put arguments)
+You can select any mode after: `python ToxiCR.py (put arguments)`
 
-<b> Retrain mode: </b>
-to retrain the best performing BERT model (with keyword preprocessing): </br>
-$ python ToxiCR.py --algo BERT --embed bert --keyword --mode pretrain
+**Retrain mode:**
 
-<b> Test Mode: </b>
-$ python ToxiCRTest.py
+To retrain the best performing BERT model (with keyword preprocessing):
 
+```bash
+python ToxiCR.py --algo BERT --embed bert --keyword --mode pretrain
+```
+
+**Test Mode:**
+
+```bash
+python ToxiCRTest.py
+```
 
 ## Copyright Information
- Copyright Software Engineering Analytics Lab (SEAL), Wayne State University, 2022
- Authors: Jaydeb Sarker <jaydebsarker@wayne.edu> and Amiangshu Bosu <abosu@wayne.edu>
+
+Copyright Software Engineering Analytics Lab (SEAL), Wayne State University, 2022
+Authors: Jaydeb Sarker <jaydebsarker@wayne.edu> and Amiangshu Bosu <abosu@wayne.edu>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -54,12 +69,12 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-
-
 ## Citation for our papers
+
 If you use our work, please cite our paper:
 
 TOSEM-23: "Automated Identification of Toxic Code Reviews Using ToxiCR"
+
 ```
 @article{10.1145/3583562,
 author = {Sarker, Jaydeb and Turzo, Asif Kamal and Dong, Ming and Bosu, Amiangshu},
@@ -77,7 +92,7 @@ keywords = {natural language processing, tool development, toxicity, sentiment a
 }
 ```
 
-ASE 2022 (Short paper): "‘Who built this crap?’ Developing a Software Engineering Domain Specific Toxicity Detector" 
+ASE 2022 (Short paper): "‘Who built this crap?’ Developing a Software Engineering Domain Specific Toxicity Detector"
 
 ```
 @inproceedings{10.1145/3551349.3559508,
