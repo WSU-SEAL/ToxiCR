@@ -1,5 +1,6 @@
-pandas==1.4.0
-numpy>=1.19.2
+python==3.7.3
+pandas==1.3.5
+numpy==1.19.2
 scikit-learn==1.0.2
 sklearn-pandas>=2.2.0
 tensorflow==2.5.0
@@ -8,7 +9,8 @@ tf-models-official ==2.5.0
 tensorflow-text == 2.5.0
 tensorflow-hub>=0.12.0
 nltk>=3.5
-spacy>=2.3
+spacy==3.5.2
 openpyxl>=3.0.9
 pydot
 graphviz
+
